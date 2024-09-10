@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/wordsFragment2">
+    app:startDestination="@id/choiceFragment">
 
     <fragment
         android:id="@+id/wordsFragment2"
@@ -24,4 +24,13 @@
         android:name="com.example.learnvocabularyapp.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" />
+    <fragment
+        android:id="@+id/choiceFragment"
+        android:name="com.example.learnvocabularyapp.ChoiceFragment"
+        android:label="fragment_choice"
+        tools:layout="@layout/fragment_choice" >
+        <action
+            android:id="@+id/action_choiceFragment_to_wordsFragment2"
+            app:destination="@id/wordsFragment2" />
+    </fragment>
 </navigation>

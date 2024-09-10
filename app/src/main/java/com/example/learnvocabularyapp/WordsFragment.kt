@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.learnvocabularyapp.adapter.RecyclerViewAdapter
 import com.example.learnvocabularyapp.constants.Constants
@@ -17,6 +18,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.random.Random
 
 
 class WordsFragment : Fragment() {
@@ -33,12 +35,15 @@ class WordsFragment : Fragment() {
         _binding = FragmentWordsBinding.inflate(inflater, container, false)
         val view = binding.root
 
-
-//            view.findNavController().navigate(R.id.action_wordsFragment2_to_detailFragment)
+        setFragmentResultListener("language"){requestKey,bundle ->
+            val en= bundle.getString("en")
+            val es= bundle.getString("es")
+            println(en)
+            println(es)
+        }
 
 
         loadData()
-
 
 
 
@@ -73,6 +78,8 @@ class WordsFragment : Fragment() {
                         val wordAdapter= RecyclerViewAdapter(wordsModel!!)
                         binding.rvWordList.adapter= wordAdapter
 
+                        swipeRefresh(wordsModel!!,wordAdapter)
+
 
                     }
                 }
@@ -85,7 +92,19 @@ class WordsFragment : Fragment() {
         })
 
 
+
     }
+
+    private fun swipeRefresh(wordsList: ArrayList<WordsModel>, adapter: RecyclerViewAdapter){
+        binding.swiperefresh.setOnRefreshListener {
+            wordsList.shuffle()
+            wordsList.shuffle(Random(System.currentTimeMillis()))
+            adapter.notifyDataSetChanged() // Adapter'i yenile
+            binding.swiperefresh.isRefreshing = false
+        }
+    }
+
+
 
 
 
