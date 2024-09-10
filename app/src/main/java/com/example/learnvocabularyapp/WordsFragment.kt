@@ -5,14 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.setFragmentResultListener
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.learnvocabularyapp.adapter.RecyclerViewAdapter
 import com.example.learnvocabularyapp.constants.Constants
 import com.example.learnvocabularyapp.databinding.FragmentWordsBinding
 import com.example.learnvocabularyapp.model.WordsModel
 import com.example.learnvocabularyapp.service.IWordsAPI
-import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,6 +26,7 @@ class WordsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var wordsModel: ArrayList<WordsModel>?= null
+    private var specificModel: ArrayList<WordsModel>?= null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,17 +35,8 @@ class WordsFragment : Fragment() {
         _binding = FragmentWordsBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        setFragmentResultListener("language"){requestKey,bundle ->
-            val en= bundle.getString("en")
-            val es= bundle.getString("es")
-            println(en)
-            println(es)
-        }
-
-
-        loadData()
-
-
+        val language= arguments?.getString("language")
+        loadData(language.toString())
 
         return view
     }
@@ -56,7 +47,7 @@ class WordsFragment : Fragment() {
         _binding = null
     }
 
-    private fun loadData(){
+    private fun loadData(language: String){
         
         val retrofit= Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
@@ -74,12 +65,24 @@ class WordsFragment : Fragment() {
                         wordsModel= ArrayList(it)
                         println(wordsModel.toString())
 
-                        binding.rvWordList.layoutManager= LinearLayoutManager(requireContext())
-                        val wordAdapter= RecyclerViewAdapter(wordsModel!!)
+                        binding.rvWordList.layoutManager= GridLayoutManager(requireContext(),2)
+                        val wordAdapter= RecyclerViewAdapter(wordsModel!!){model ->
+
+                            val bundle= Bundle().apply {
+                                putString("tr", model.wordTr)
+                                putString("en", model.wordEn)
+                                putString("es", model.wordEs)
+                                putString("wordImageUrl", model.wordImageUrl)
+                                putInt("id", model.id)
+                                putString("language", language)
+                            }
+
+                            view?.findNavController()?.navigate(R.id.action_wordsFragment2_to_detailFragment,bundle)
+
+                        }
                         binding.rvWordList.adapter= wordAdapter
 
                         swipeRefresh(wordsModel!!,wordAdapter)
-
 
                     }
                 }
@@ -91,15 +94,13 @@ class WordsFragment : Fragment() {
 
         })
 
-
-
     }
 
     private fun swipeRefresh(wordsList: ArrayList<WordsModel>, adapter: RecyclerViewAdapter){
         binding.swiperefresh.setOnRefreshListener {
             wordsList.shuffle()
             wordsList.shuffle(Random(System.currentTimeMillis()))
-            adapter.notifyDataSetChanged() // Adapter'i yenile
+            adapter.notifyDataSetChanged()
             binding.swiperefresh.isRefreshing = false
         }
     }
