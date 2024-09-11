@@ -38,6 +38,12 @@ class ChoiceFragment : Fragment() {
             view.findNavController().navigate(R.id.action_choiceFragment_to_wordsFragment2,bundle)
         }
 
+        binding.ivGermany.setOnClickListener {
+            language= "de"
+            val bundle= bundleOf("language" to language)
+            view.findNavController().navigate(R.id.action_choiceFragment_to_wordsFragment2,bundle)
+        }
+
         return view
     }
 
