@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.learnvocabularyapp.adapter.RecyclerViewAdapter
@@ -36,8 +36,12 @@ class WordsFragment : Fragment() {
         _binding = FragmentWordsBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        val language= arguments?.getString("language")
-        loadData(language.toString())
+        try {
+            val language= arguments?.getString("language")
+            loadData(language.toString())
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
 
         return view
     }
@@ -85,7 +89,9 @@ class WordsFragment : Fragment() {
                             view?.findNavController()?.navigate(R.id.action_wordsFragment2_to_detailFragment,bundle)
 
                         }
+
                         binding.rvWordList.adapter= wordAdapter
+                        wordAdapter.notifyDataSetChanged()
 
                         swipeRefresh(wordsModel!!,wordAdapter)
 
@@ -109,9 +115,5 @@ class WordsFragment : Fragment() {
             binding.swiperefresh.isRefreshing = false
         }
     }
-
-
-
-
 
 }

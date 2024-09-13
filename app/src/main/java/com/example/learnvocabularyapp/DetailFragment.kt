@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -104,8 +106,8 @@ class DetailFragment : Fragment() {
                 val learnedModel= WordsModel(learnedId.toInt(),learnedEn!!,learnedEs!!,learnedGe!!,learnedTr!!,learnedSentenceEn!!,learnedSentenceEs!!,learnedSentenceGe!!,learnedSentenceTr!!,learnedWordImageUrl!!)
 
                 Picasso.get().load(learnedWordImageUrl).into(binding.ivDetail)
-                binding.tvWordForLanguage.text = learnedEn
-                binding.tvWordForTurkish.text = learnedTr
+                binding.tvWordForLanguage.text = learnedTr
+                binding.tvWordForTurkish.text = learnedEn
                 binding.tvWarning.text= "Kelimenin ingilizcede karşılığını görmek için resme dokunun!"
                 binding.tvForSentenceLanguage.text= learnedSentenceEn
                 binding.tvForTurkishLanguage.text= learnedSentenceTr
@@ -113,7 +115,13 @@ class DetailFragment : Fragment() {
                 binding.addToLearnedButton.visibility = View.GONE
                 binding.removeToLearnedButton.visibility = View.VISIBLE
                 viewModel.removeFromLearned()
+
                 viewModel.setIsAddedToLearned(true)
+
+                binding.cardViewDetail.setOnClickListener {
+                    flipAnimation()
+                }
+
                 binding.removeToLearnedButton.setOnClickListener {
                     binding.addToLearnedButton.visibility = View.VISIBLE
                     binding.removeToLearnedButton.visibility = View.GONE
@@ -122,7 +130,6 @@ class DetailFragment : Fragment() {
                 }
 
             }
-
 
             val isItemInDatabase = wordsDao.getById(wordId!!.toInt()).isNotEmpty()
             viewModel.setIsAddedToLearned(isItemInDatabase)
@@ -172,7 +179,7 @@ class DetailFragment : Fragment() {
                 binding.removeToLearnedButton.visibility = View.VISIBLE
                 viewModel.addToLearned()
                 wordsDao.insert(model)
-            }
+                            }
 
             binding.removeToLearnedButton.setOnClickListener {
                 binding.addToLearnedButton.visibility = View.VISIBLE

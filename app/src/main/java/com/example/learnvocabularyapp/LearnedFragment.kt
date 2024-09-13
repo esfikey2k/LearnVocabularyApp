@@ -30,10 +30,8 @@ class LearnedFragment : Fragment() {
         _binding= FragmentLearnedBinding.inflate(inflater,container,false)
         val view= binding.root
 
-
         val wordsDb = ModelDB.getInstance(requireContext())
         wordsDao= wordsDb.wordsDao
-
 
         val list= wordsDao.getAll() as ArrayList<WordsModel>
 
