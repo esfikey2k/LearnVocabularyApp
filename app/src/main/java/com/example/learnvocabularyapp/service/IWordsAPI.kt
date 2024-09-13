@@ -5,6 +5,6 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface IWordsAPI {
-        @GET("4c40ef4eb191daf12f6b")
+        @GET("f30f67152e7e372c51e4")
         fun getData(): Call<List<WordsModel>>
 }

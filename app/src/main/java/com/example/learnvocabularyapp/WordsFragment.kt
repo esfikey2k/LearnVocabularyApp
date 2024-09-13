@@ -26,7 +26,6 @@ class WordsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var wordsModel: ArrayList<WordsModel>?= null
-    private var specificModel: ArrayList<WordsModel>?= null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +62,6 @@ class WordsFragment : Fragment() {
                 if (p1.isSuccessful){
                     p1.body()?.let {
                         wordsModel= ArrayList(it)
-                        println(wordsModel.toString())
 
                         binding.rvWordList.layoutManager= GridLayoutManager(requireContext(),2)
                         val wordAdapter= RecyclerViewAdapter(wordsModel!!){model ->
@@ -72,6 +70,11 @@ class WordsFragment : Fragment() {
                                 putString("tr", model.wordTr)
                                 putString("en", model.wordEn)
                                 putString("es", model.wordEs)
+                                putString("ge", model.wordGe)
+                                putString("sentenceEs", model.sentenceEs)
+                                putString("sentenceEn", model.sentenceEn)
+                                putString("sentenceTr", model.sentenceTr)
+                                putString("sentenceGe", model.sentenceGe)
                                 putString("wordImageUrl", model.wordImageUrl)
                                 putInt("id", model.id)
                                 putString("language", language)

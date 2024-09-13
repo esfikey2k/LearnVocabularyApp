@@ -11,20 +11,35 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import com.example.learnvocabularyapp.databinding.FragmentDetailBinding
+import com.example.learnvocabularyapp.model.WordsModel
+import com.example.learnvocabularyapp.room.ModelDB
+import com.example.learnvocabularyapp.room.WordsDAO
 import com.squareup.picasso.Picasso
 
 
 class DetailFragment : Fragment() {
+
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
 
     private var wordTr: String? = null
     private var wordEn: String? = null
     private var wordEs: String? = null
+    private var wordGe: String? = null
+    private var sentenceTr: String? = null
+    private var sentenceEs: String? = null
+    private var sentenceEn: String? = null
+    private var sentenceGe: String? = null
     private var wordImageUrl: String? = null
     private var wordId: String? = null
     private var wordLanguage: String? = null
+
+    private lateinit var wordsDao: WordsDAO
+
+
+    private lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,41 +48,87 @@ class DetailFragment : Fragment() {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        arguments?.let { bundle ->
-            wordTr = bundle.getString("tr")
-            wordEn = bundle.getString("en")
-            wordEs = bundle.getString("es")
-            wordImageUrl = bundle.getString("wordImageUrl")
-            wordId = bundle.getString("id")
-            wordLanguage = bundle.getString("language")
-        }
+        try {
 
-        binding.tvWordForTurkish.visibility= TextView.VISIBLE
-        binding.tvWordForLanguage.visibility= TextView.GONE
+            viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
 
-        Picasso.get().load(wordImageUrl).into(binding.ivDetail)
+            val wordsDb = ModelDB.getInstance(requireContext())
+            wordsDao= wordsDb.wordsDao
 
-        binding.cardViewDetail.setOnClickListener {
-            flipAnimation()
-        }
-
-        when (wordLanguage) {
-            "en" -> {
-                binding.tvWordForLanguage.text = wordEn
-                binding.tvWordForTurkish.text = wordTr
-                binding.tvWarning.text= "Kelimenin ingilizcede karşılığını görmek için resme dokunun!"
-            }
-            "es" -> {
-                binding.tvWordForLanguage.text = wordEs
-                binding.tvWordForTurkish.text = wordTr
-                binding.tvWarning.text= "Kelimenin ispanyolca karşılığını görmek için resme dokunun!"
-            }
-            "de" -> {
-                binding.tvWordForLanguage.text = wordTr
-                binding.tvWordForTurkish.text = wordEn
-                binding.tvWarning.text = "Kelimenin almanca karşılığını görmek için resme dokunun!"
+            viewModel.isAddedToLearned.observe(viewLifecycleOwner) { isAdded ->
+                if (isAdded) {
+                    binding.addToLearnedButton.visibility = View.GONE
+                    binding.removeToLearnedButton.visibility = View.VISIBLE
+                } else {
+                    binding.addToLearnedButton.visibility = View.VISIBLE
+                    binding.removeToLearnedButton.visibility = View.GONE
+                }
             }
 
+            arguments?.let { bundle ->
+                wordTr = bundle.getString("tr")
+                wordEn = bundle.getString("en")
+                wordEs = bundle.getString("es")
+                wordGe = bundle.getString("ge")
+                sentenceTr = bundle.getString("sentenceTr")
+                sentenceEs = bundle.getString("sentenceEs")
+                sentenceEn = bundle.getString("sentenceEn")
+                sentenceGe = bundle.getString("sentenceGe")
+                wordImageUrl = bundle.getString("wordImageUrl")
+                wordId = bundle.getInt("id").toString()
+                wordLanguage = bundle.getString("language")
+            }
+
+            binding.tvWordForTurkish.visibility= TextView.VISIBLE
+            binding.tvWordForLanguage.visibility= TextView.GONE
+
+            Picasso.get().load(wordImageUrl).into(binding.ivDetail)
+
+            binding.cardViewDetail.setOnClickListener {
+                flipAnimation()
+            }
+
+            when (wordLanguage) {
+                "en" -> {
+                    binding.tvWordForLanguage.text = wordEn
+                    binding.tvWordForTurkish.text = wordTr
+                    binding.tvWarning.text= "Kelimenin ingilizcede karşılığını görmek için resme dokunun!"
+                    binding.tvForSentenceLanguage.text= sentenceEn
+                    binding.tvForTurkishLanguage.text= sentenceTr
+                }
+                "es" -> {
+                    binding.tvWordForLanguage.text = wordEs
+                    binding.tvWordForTurkish.text = wordTr
+                    binding.tvWarning.text= "Kelimenin ispanyolca karşılığını görmek için resme dokunun!"
+                    binding.tvForSentenceLanguage.text= sentenceEs
+                    binding.tvForTurkishLanguage.text= sentenceTr
+                }
+                "ge" -> {
+                    binding.tvWordForLanguage.text = wordGe
+                    binding.tvWordForTurkish.text = wordTr
+                    binding.tvWarning.text = "Kelimenin almanca karşılığını görmek için resme dokunun!"
+                    binding.tvForSentenceLanguage.text= sentenceGe
+                    binding.tvForTurkishLanguage.text= sentenceTr
+                }
+
+            }
+            val model= WordsModel(wordId!!.toInt(),wordEn!!,wordEs!!,wordGe!!,wordTr!!,sentenceEn!!,sentenceEs!!,sentenceGe!!,sentenceTr!!,wordImageUrl!!)
+
+            binding.addToLearnedButton.setOnClickListener {
+                binding.addToLearnedButton.visibility = View.GONE
+                binding.removeToLearnedButton.visibility = View.VISIBLE
+                viewModel.addToLearned()
+                wordsDao.insert(model)
+            }
+
+            binding.removeToLearnedButton.setOnClickListener {
+                binding.addToLearnedButton.visibility = View.VISIBLE
+                binding.removeToLearnedButton.visibility = View.GONE
+                viewModel.removeFromLearned()
+                wordsDao.delete(model)
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
         }
 
         return view
@@ -100,7 +161,6 @@ class DetailFragment : Fragment() {
                 oa2.start()
             }
         })
-
 
         oa1.start()
     }

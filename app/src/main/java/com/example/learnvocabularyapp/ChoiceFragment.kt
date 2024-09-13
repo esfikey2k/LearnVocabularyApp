@@ -39,7 +39,7 @@ class ChoiceFragment : Fragment() {
         }
 
         binding.ivGermany.setOnClickListener {
-            language= "de"
+            language= "ge"
             val bundle= bundleOf("language" to language)
             view.findNavController().navigate(R.id.action_choiceFragment_to_wordsFragment2,bundle)
         }
