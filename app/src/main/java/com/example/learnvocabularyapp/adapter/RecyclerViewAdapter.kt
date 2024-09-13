@@ -19,4 +19,6 @@ class RecyclerViewAdapter(private val wordsList: ArrayList<WordsModel>, private 
         holder.bind(wordsList[position],onClickListener)
 
     }
+
+
 }

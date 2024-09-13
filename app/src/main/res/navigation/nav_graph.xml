@@ -13,12 +13,19 @@
         <action
             android:id="@+id/action_wordsFragment2_to_detailFragment"
             app:destination="@id/detailFragment" />
+        <action
+            android:id="@+id/action_wordsFragment2_to_choiceFragment"
+            app:destination="@id/choiceFragment" />
     </fragment>
     <fragment
         android:id="@+id/learnedFragment2"
         android:name="com.example.learnvocabularyapp.LearnedFragment"
         android:label="fragment_learned"
-        tools:layout="@layout/fragment_learned" />
+        tools:layout="@layout/fragment_learned" >
+        <action
+            android:id="@+id/action_learnedFragment2_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.example.learnvocabularyapp.DetailFragment"

@@ -5,6 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.learnvocabularyapp.adapter.RecyclerViewAdapter
 import com.example.learnvocabularyapp.databinding.FragmentLearnedBinding
@@ -36,13 +39,29 @@ class LearnedFragment : Fragment() {
 
         binding.recyclerViewFragmentLearned.layoutManager= GridLayoutManager(requireContext(),2)
         val adapter= RecyclerViewAdapter(list){model ->
-            println("${model.id}")
+            setFragmentResult("learnedWord", bundleOf(
+                "learnedId" to model.id,
+                "learnedEn" to model.wordEn,
+                "learnedEs" to model.wordEs,
+                "learnedGe" to model.wordGe,
+                "learnedTr" to model.wordTr,
+                "learnedSentenceEn" to model.sentenceEn,
+                "learnedSentenceEs" to model.sentenceEs,
+                "learnedSentenceGe" to model.sentenceGe,
+                "learnedSentenceTr" to model.sentenceTr,
+                "learnedWordImageUrl" to model.wordImageUrl
+            ))
+
+            view.findNavController().navigate(R.id.action_learnedFragment2_to_detailFragment)
+
         }
         binding.recyclerViewFragmentLearned.adapter= adapter
 
 
         return view
     }
+
+
 
 
 }

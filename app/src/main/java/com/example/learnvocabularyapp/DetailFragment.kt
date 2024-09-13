@@ -11,12 +11,18 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import com.example.learnvocabularyapp.databinding.FragmentDetailBinding
 import com.example.learnvocabularyapp.model.WordsModel
 import com.example.learnvocabularyapp.room.ModelDB
 import com.example.learnvocabularyapp.room.WordsDAO
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class DetailFragment : Fragment() {
@@ -35,10 +41,7 @@ class DetailFragment : Fragment() {
     private var wordImageUrl: String? = null
     private var wordId: String? = null
     private var wordLanguage: String? = null
-
     private lateinit var wordsDao: WordsDAO
-
-
     private lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
@@ -77,7 +80,53 @@ class DetailFragment : Fragment() {
                 wordImageUrl = bundle.getString("wordImageUrl")
                 wordId = bundle.getInt("id").toString()
                 wordLanguage = bundle.getString("language")
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val isItemInDatabase = withContext(Dispatchers.IO) {
+                        wordsDao.getById(wordId!!.toInt()).isNotEmpty()
+                    }
+                    viewModel.setIsAddedToLearned(isItemInDatabase)
+                }
             }
+
+            setFragmentResultListener("learnedWord"){_,bundle ->
+                val learnedId = bundle.getInt("learnedId").toString()
+                val learnedTr = bundle.getString("learnedTr")
+                val learnedEn = bundle.getString("learnedEn")
+                val learnedEs = bundle.getString("learnedEs")
+                val learnedGe = bundle.getString("learnedGe")
+                val learnedSentenceTr = bundle.getString("learnedSentenceTr")
+                val learnedSentenceEs = bundle.getString("learnedSentenceEs")
+                val learnedSentenceEn = bundle.getString("learnedSentenceEn")
+                val learnedSentenceGe = bundle.getString("learnedSentenceGe")
+                val learnedWordImageUrl = bundle.getString("learnedWordImageUrl")
+
+                val learnedModel= WordsModel(learnedId.toInt(),learnedEn!!,learnedEs!!,learnedGe!!,learnedTr!!,learnedSentenceEn!!,learnedSentenceEs!!,learnedSentenceGe!!,learnedSentenceTr!!,learnedWordImageUrl!!)
+
+                Picasso.get().load(learnedWordImageUrl).into(binding.ivDetail)
+                binding.tvWordForLanguage.text = learnedEn
+                binding.tvWordForTurkish.text = learnedTr
+                binding.tvWarning.text= "Kelimenin ingilizcede karşılığını görmek için resme dokunun!"
+                binding.tvForSentenceLanguage.text= learnedSentenceEn
+                binding.tvForTurkishLanguage.text= learnedSentenceTr
+
+                binding.addToLearnedButton.visibility = View.GONE
+                binding.removeToLearnedButton.visibility = View.VISIBLE
+                viewModel.removeFromLearned()
+                viewModel.setIsAddedToLearned(true)
+                binding.removeToLearnedButton.setOnClickListener {
+                    binding.addToLearnedButton.visibility = View.VISIBLE
+                    binding.removeToLearnedButton.visibility = View.GONE
+                    viewModel.removeFromLearned()
+                    wordsDao.delete(learnedModel)
+                }
+
+            }
+
+
+            val isItemInDatabase = wordsDao.getById(wordId!!.toInt()).isNotEmpty()
+            viewModel.setIsAddedToLearned(isItemInDatabase)
+
 
             binding.tvWordForTurkish.visibility= TextView.VISIBLE
             binding.tvWordForLanguage.visibility= TextView.GONE
@@ -110,6 +159,10 @@ class DetailFragment : Fragment() {
                     binding.tvForSentenceLanguage.text= sentenceGe
                     binding.tvForTurkishLanguage.text= sentenceTr
                 }
+                null -> {
+                    view.findNavController().navigate(R.id.action_wordsFragment2_to_choiceFragment)
+
+                }
 
             }
             val model= WordsModel(wordId!!.toInt(),wordEn!!,wordEs!!,wordGe!!,wordTr!!,sentenceEn!!,sentenceEs!!,sentenceGe!!,sentenceTr!!,wordImageUrl!!)
@@ -126,6 +179,7 @@ class DetailFragment : Fragment() {
                 binding.removeToLearnedButton.visibility = View.GONE
                 viewModel.removeFromLearned()
                 wordsDao.delete(model)
+
             }
         }catch (e: Exception){
             e.printStackTrace()
@@ -164,5 +218,6 @@ class DetailFragment : Fragment() {
 
         oa1.start()
     }
+
 
 }

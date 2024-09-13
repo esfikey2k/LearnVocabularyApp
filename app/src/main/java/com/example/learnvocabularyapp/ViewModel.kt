@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DetailViewModel : ViewModel() {
+
+class DetailViewModel : ViewModel()  {
     private val _isAddedToLearned = MutableLiveData<Boolean>(false)
     val isAddedToLearned: LiveData<Boolean> get() = _isAddedToLearned
 
@@ -15,4 +16,9 @@ class DetailViewModel : ViewModel() {
     fun removeFromLearned() {
         _isAddedToLearned.value = false
     }
+
+    fun setIsAddedToLearned(isAdded: Boolean) {
+        _isAddedToLearned.value = isAdded
+    }
+
 }
